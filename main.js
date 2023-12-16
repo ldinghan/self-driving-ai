@@ -6,41 +6,64 @@ networkCanvas.width = 300;
 const carCtx = carCanvas.getContext("2d");
 const networkCtx = networkCanvas.getContext("2d");
 const road = new Road(carCanvas.width/2, carCanvas.width*0.9);
-const cars = generateCars(1000);
-let bestCar = cars[0];
-if (localStorage.getItem("bestBrain")) {
-    for (let i = 0; i < cars.length; i++) {
-        cars[i].brain = JSON.parse(
-            localStorage.getItem("bestBrain")
-        );
-        if (i != 0) {
-            NeuralNetwork.mutate(cars[i].brain, 0.001);
+let cars, bestCar, traffic;
+let animationId;
+let mutationValue = 30;
+let numberOfCars = 700;
+
+const mutationInputValue = document.getElementById("mutationInputValue");
+const carInputValue = document.getElementById("carInputValue");
+
+rerun();
+
+function rerun() {
+    networkCtx.clearRect(0, 0, networkCanvas.width, networkCanvas.height);
+    carCtx.clearRect(0, 0, networkCanvas.width, networkCanvas.height);
+    cancelAnimationFrame(animationId);
+    traffic = [];
+    cars = [];
+    if (mutationInputValue.value) {
+        mutationValue = mutationInputValue.value;
+    }
+    if (carInputValue.value) {
+        numberOfCars = carInputValue.value;
+    }
+    cars = generateCars(numberOfCars);
+    bestCar = cars[0];
+    traffic = [
+        new Car(road.getLaneCenter(1), -100, 30, 50, "DUMMY", 2),
+        new Car(road.getLaneCenter(0), -300, 30, 50, "DUMMY", 2),
+        new Car(road.getLaneCenter(2), -300, 30, 50, "DUMMY", 2),
+        new Car(road.getLaneCenter(2), -500, 30, 50, "DUMMY", 2),
+        new Car(road.getLaneCenter(1), -500, 30, 50, "DUMMY", 2),
+        new Car(road.getLaneCenter(2), -620, 30, 50, "DUMMY", 2),
+        new Car(road.getLaneCenter(1), -600, 30, 50, "DUMMY", 2),
+        new Car(road.getLaneCenter(0), -400, 30, 50, "DUMMY", 2),
+        new Car(road.getLaneCenter(2), -820, 30, 50, "DUMMY", 2.2),
+        new Car(road.getLaneCenter(1), -750, 30, 50, "DUMMY", 2.2),
+        new Car(road.getLaneCenter(0), -860, 30, 50, "DUMMY", 2.2),
+        new Car(road.getLaneCenter(2), -1000, 30, 50, "DUMMY", 2.2),
+        new Car(road.getLaneCenter(1), -1100, 30, 50, "DUMMY", 2.2),
+        new Car(road.getLaneCenter(2), -1100, 30, 50, "DUMMY", 2.2),
+        new Car(road.getLaneCenter(0), -1000, 30, 50, "DUMMY", 2.5),
+        new Car(road.getLaneCenter(0), -1200, 30, 50, "DUMMY", 2.5),
+        new Car(road.getLaneCenter(1), -1400, 30, 50, "DUMMY", 2.5),
+        new Car(road.getLaneCenter(2), -1200, 30, 50, "DUMMY", 2.5),
+    ];
+    if (localStorage.getItem("bestBrain")) {
+        for (let i = 0; i < cars.length; i++) {
+            cars[i].brain = JSON.parse(
+                localStorage.getItem("bestBrain")
+            );
+            if (i != 0) {
+                NeuralNetwork.mutate(cars[i].brain, mutationValue / 1000);
+            }
         }
     }
+    
+    animate();
 }
-const traffic = [
-    new Car(road.getLaneCenter(1), -100, 30, 50, "DUMMY", 2),
-    new Car(road.getLaneCenter(0), -300, 30, 50, "DUMMY", 2),
-    new Car(road.getLaneCenter(2), -300, 30, 50, "DUMMY", 2),
-    new Car(road.getLaneCenter(2), -500, 30, 50, "DUMMY", 2),
-    new Car(road.getLaneCenter(1), -500, 30, 50, "DUMMY", 2),
-    new Car(road.getLaneCenter(2), -620, 30, 50, "DUMMY", 2),
-    new Car(road.getLaneCenter(1), -600, 30, 50, "DUMMY", 2),
-    new Car(road.getLaneCenter(0), -400, 30, 50, "DUMMY", 2),
-    new Car(road.getLaneCenter(2), -820, 30, 50, "DUMMY", 2.2),
-    new Car(road.getLaneCenter(1), -750, 30, 50, "DUMMY", 2.2),
-    new Car(road.getLaneCenter(0), -860, 30, 50, "DUMMY", 2.2),
-    new Car(road.getLaneCenter(2), -1000, 30, 50, "DUMMY", 2.2),
-    new Car(road.getLaneCenter(1), -1100, 30, 50, "DUMMY", 2.2),
-    new Car(road.getLaneCenter(2), -1100, 30, 50, "DUMMY", 2.2),
-    new Car(road.getLaneCenter(0), -1000, 30, 50, "DUMMY", 2.5),
-    new Car(road.getLaneCenter(0), -1200, 30, 50, "DUMMY", 2.5),
-    new Car(road.getLaneCenter(1), -1400, 30, 50, "DUMMY", 2.5),
-    new Car(road.getLaneCenter(2), -1200, 30, 50, "DUMMY", 2.5),
-];
 
-
-animate();
 
 function save() {
     localStorage.setItem("bestBrain",
@@ -96,5 +119,5 @@ function animate(time) {
 
     networkCtx.lineDashOffset = -time/80;
     Visualiser.drawNetwork(networkCtx, bestCar.brain);
-    requestAnimationFrame(animate);
+    animationId = requestAnimationFrame(animate);
 }

@@ -9,8 +9,11 @@
     <canvas id="carCanvas"></canvas>
     <canvas id="networkCanvas"></canvas>
     <div id="verticalButtons">
-        <button onclick="save()">💾</button>
-        <button onclick="discard()">🗑️</button>
+        <button onclick="save()">💾 Save brain</button>
+        <button onclick="discard()">🗑️ Delete brain</button>
+        <button onclick="rerun()">🚘 Run</button>
+        <div>Number of Cars (1-1000):<input type="number" min="1" max="1000" id="carInputValue" placeholder="700"/></div>
+        <div>Mutation (1-100):<input type="number" min="1" max="100" id="mutationInputValue" placeholder="30"/></div>
     </div>
     <script src="visualiser.js"></script>
     <script src="network.js"></script>
